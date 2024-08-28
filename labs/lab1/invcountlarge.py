@@ -9,8 +9,6 @@ A1, A2, . . . , AN (1 ≤ Ai ≤ 200 000).
 Output
 Display the number of inversions in the list.
 """
-import matplotlib.pyplot as plt
-
 def merge_and_count(items, left_start, mid, right_end):
     "merges two sorted subarrays and counts inversions"
     left_length = mid - left_start + 1
@@ -67,23 +65,6 @@ def invcountlarge(items):
      n = len(items)
      return merge_sort_and_count(items, 0, n - 1)
 
-test_cases = [
-    ([], 0),
-    ([1], 0),
-    ([2, 1], 1),
-    ([3, 1, 2], 2),
-    ([1, 2, 3], 0),
-    ([3, 2, 1], 3),
-    ([5, 2, 3, 1, 4], 2),
-    ([10, 9, 8, 7, 6, 5, 4, 3, 2, 1], 45),
-]
-
-for items, expected_inversions in test_cases:
-    actual_inversions = invcountlarge(items)
-    print(f"Input: {items}")
-    print(f"Expected inversions: {expected_inversions}")
-    print(f"Actual inversions: {actual_inversions}")
-    print()
 """ SOLUTION:
 Algorithm:
 
