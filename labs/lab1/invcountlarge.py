@@ -9,61 +9,65 @@ A1, A2, . . . , AN (1 ≤ Ai ≤ 200 000).
 Output
 Display the number of inversions in the list.
 """
-def merge_and_count(items, left_start, mid, right_end):
-    "merges two sorted subarrays and counts inversions"
-    left_length = mid - left_start + 1
-    right_length = right_end - mid
 
-    left_subarray = [0] * left_length
-    right_subarray = [0] * right_length
 
-    for i in range(0, left_length):
-        left_subarray[i] = items[left_start + i]
-    for j in range(0, right_length):
-        right_subarray[j] = items[mid + 1 + j]
+def merge_count_split_inv(arr, temp_arr, left, mid, right):
+    i = left  # Starting index for left subarray
+    j = mid + 1  # Starting index for right subarray
+    k = left  # Starting index to be sorted
+    inv_count = 0
 
-    i = 0
-    j = 0
-    k = left_start
-    inversion_count = 0
-
-    while i < left_length and j < right_length:
-        if left_subarray[i] <= right_subarray[j]:
-            items[k] = left_subarray[i]
+    # Conditions are checked to ensure that i doesn't exceed mid and j doesn't exceed right
+    while i <= mid and j <= right:
+        if arr[i] <= arr[j]:
+            temp_arr[k] = arr[i]
             i += 1
         else:
-                items[k] = right_subarray[j]
-                j += 1
-                inversion_count += left_length - i
+            # There are mid - i inversions, because all the remaining elements in the left subarray
+            # (arr[i], arr[i+1], ..., arr[mid]) are greater than arr[j]
+            temp_arr[k] = arr[j]
+            inv_count += (mid - i + 1)
+            j += 1
         k += 1
-        
-    while i < left_length:
-         items[k] = left_subarray[i]
-         i += 1
-         k += 1
 
-    while j < right_length:
-         items[k] = right_subarray[j]
-         j += 1
-         k += 1
+    # Copy the remaining elements of left subarray, if any
+    while i <= mid:
+        temp_arr[k] = arr[i]
+        i += 1
+        k += 1
 
-    return inversion_count
+    # Copy the remaining elements of right subarray, if any
+    while j <= right:
+        temp_arr[k] = arr[j]
+        j += 1
+        k += 1
 
+    # Copy the sorted subarray into Original array
+    for i in range(left, right + 1):
+        arr[i] = temp_arr[i]
 
-def merge_sort_and_count(items, left_start,right_end):
-    "sorts the array using merge sort and counts inversions"
-    inversion_count = 0
+    return inv_count
 
-    if left_start < right_end:
-          mid = (left_start + right_end) // 2
-          inversion_count += merge_sort_and_count(items, left_start, mid)
-          inversion_count += merge_sort_and_count(items, mid + 1, right_end)
-          inversion_count += merge_and_count(items, left_start, mid, right_end)
-    return inversion_count
-                         
-def invcountlarge(items):
-     n = len(items)
-     return merge_sort_and_count(items, 0, n - 1)
+def merge_sort_and_count(arr, temp_arr, left, right):
+    inv_count = 0
+    if left < right:
+        mid = (left + right) // 2
+
+        inv_count += merge_sort_and_count(arr, temp_arr, left, mid)
+        inv_count += merge_sort_and_count(arr, temp_arr, mid + 1, right)
+        inv_count += merge_count_split_inv(arr, temp_arr, left, mid, right)
+
+    return inv_count
+
+def main():
+    N = int(input())  # First line input, total number of elements
+    arr = list(map(int, input().split()))  # Second line input, the array elements
+
+    temp_arr = [0] * N
+    result = merge_sort_and_count(arr, temp_arr, 0, N - 1)
+    print(result)
+
+main()
 
 """ SOLUTION:
 Algorithm:
