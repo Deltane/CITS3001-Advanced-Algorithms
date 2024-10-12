@@ -1,45 +1,44 @@
 import sys
-def read_properties():
-    data = sys.stdin.read().strip().split()
-    index = 0
-    results = []
+from collections import deque
 
-    while index < len(data):
-        num_properties = int(data[index])
-        index += 1
-        max_size_limit = int(data[index])
-        index += 1
-        properties = []
-        for i in range(num_properties):
-            value = int(data[index])
-            index += 1
-            size = int(data[index])
-            index += 1
-            properties.append((value, size))
-        min_tax = calculate_min_tax(properties, max_size_limit)
-        results.append(min_tax)
-    return results
+def readProperties():
+    input_line = sys.stdin.readline().split()
+    while len(input_line) < 2:
+        input_line += sys.stdin.readline().split()
+    numProperties, sizeLimit = map(int, input_line)
+    properties = []
+    for index in range(numProperties):
+        while True:
+            line = sys.stdin.readline().strip()
+            if line:
+                value, size = map(int, line.split())
+                properties.append({'value': value, 'size': size})
+                break
+    return numProperties, sizeLimit, properties
 
-def calculate_min_tax(properties, max_size_limit):
-    num_properties = len(properties)
-    min_tax_payable = [float('inf')] * (num_properties + 1)
-    min_tax_payable[0] = 0
+def calculateMinTax(numProperties, sizeLimit, properties):
+    minTax = [0] * (numProperties + 1)
+    totalSize = 0
+    start = 0
+    maxValues = deque()
 
-    for end_index in range(1, num_properties + 1):
-        max_property_value = 0
-        cumulative_size = 0
-        current_index = end_index
-        while current_index > 0 and cumulative_size + properties[current_index - 1][1] <= max_size_limit:
-            cumulative_size += properties[current_index - 1][1]
-            max_property_value = max(max_property_value, properties[current_index - 1][0])
-            min_tax_payable[end_index] = min(min_tax_payable[end_index],
-                                             min_tax_payable[current_index - 1] + max_property_value)
-            current_index -= 1
-    return min_tax_payable[num_properties]
+    for end in range(numProperties):
+        totalSize += properties[end]['size']
+        while totalSize > sizeLimit:
+            totalSize -= properties[start]['size']
+            if maxValues and maxValues[0]['index'] == start:
+                maxValues.popleft()
+            start += 1
+        while maxValues and maxValues[-1]['value'] <= properties[end]['value']:
+            maxValues.pop()
+        maxValues.append({'value': properties[end]['value'], 'index': end})
+        minTax[end + 1] = minTax[start] + maxValues[0]['value']
+    return minTax[numProperties]
+
 def main():
-    results = read_properties()
-    for result in results:
-        print(result)
+    numProperties, sizeLimit, properties = readProperties()
+    minTax = calculateMinTax(numProperties, sizeLimit, properties)
+    print(minTax)
 
 if __name__ == "__main__":
     main()
